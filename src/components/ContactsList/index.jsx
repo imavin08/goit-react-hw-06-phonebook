@@ -1,14 +1,23 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import css from './ContactsList.module.css';
+import { useSelector, useDispatch } from 'react-redux';
+import { remove } from '../../redux/myItems/slice';
 
-const ContactsList = ({ contacts, onClick }) => {
+const ContactsList = () => {
+  const contacts = useSelector(state => state.items);
+  const dispatch = useDispatch();
+  const filter = useSelector(state => state.filter);
+
+  const searchName = () => {
+    return contacts.filter(cont => cont.name.toLowerCase().includes(filter));
+  };
+
   return (
     <ul>
-      {contacts.map(({ name, id, number }) => (
+      {searchName().map(({ name, id, number }) => (
         <li key={id}>
           {name}: {number}
-          <button className={css.button} onClick={() => onClick(id)}>
+          <button className={css.button} onClick={() => dispatch(remove(id))}>
             Delete
           </button>
         </li>
@@ -18,14 +27,3 @@ const ContactsList = ({ contacts, onClick }) => {
 };
 
 export default ContactsList;
-
-ContactsList.propTypes = {
-  onClick: PropTypes.func.isRequired,
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      id: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ),
-};

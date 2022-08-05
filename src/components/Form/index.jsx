@@ -1,10 +1,15 @@
 import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { nanoid } from 'nanoid';
 import css from './Form.module.css';
-import PropTypes from 'prop-types';
+import { add } from '../../redux/myItems/slice';
 
-function Form({ onSubmit, arr }) {
+function Form() {
   const [name, SetName] = useState('');
   const [number, SetNumber] = useState('');
+
+  const contactsValue = useSelector(state => state.items);
+  const dispatch = useDispatch();
 
   const handleInputChange = e => {
     const currentTarget = e.currentTarget.name;
@@ -17,20 +22,17 @@ function Form({ onSubmit, arr }) {
     }
   };
 
-  const alertSameName = () => {
-    const nameArr = arr.map(ar => ar.name.toLowerCase());
-    if (nameArr.includes(name.toLowerCase())) {
+  const handleFormSubmit = e => {
+    e.preventDefault();
+    const namevalue = contactsValue.map(ar => ar.name.toLowerCase());
+
+    if (namevalue.includes(name.toLowerCase())) {
       alert(`${name} is alredy in contacts`);
     } else {
-      onSubmit(name, number);
+      dispatch(add({ name, number, id: nanoid() }));
       SetName('');
       SetNumber('');
     }
-  };
-
-  const handleFormSubmit = e => {
-    e.preventDefault();
-    alertSameName();
   };
 
   return (
@@ -70,14 +72,3 @@ function Form({ onSubmit, arr }) {
 }
 
 export default Form;
-
-Form.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  arr: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    }).isRequired
-  ).isRequired,
-};
